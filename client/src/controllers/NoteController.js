@@ -1,4 +1,3 @@
-import axios from 'axios';
 import NoteServices from '../services/NoteServices';
 // import $ from 'jquery';
 var dateFormat = require('dateformat');
@@ -168,28 +167,7 @@ class NoteController {
     }
 
     shareNoteWith(shareWith,key,note) {
-        const username = localStorage.getItem('username');
-        const userfullname = localStorage.getItem('user');
-        const sharenotewith = shareWith;
-        var users = [];
-        axios.get('/api/users/register')
-          .then(res => {
-            users = res.data;
-            users.forEach(function(user) {
-                var userId = user._id;
-                var notetitle = note.notetitle;
-                var notedata = note.notedata;
-                if(user.username === sharenotewith) {
-                    axios.post('/api/notes/sharenote', { key,username,sharenotewith,userfullname })
-                    .then((result) => {
-                        axios.post('/api/notes/notes',{userId, notetitle, notedata})
-                            .then((result) => {
-
-                            })
-                    })
-                }
-            });
-        });
+        noteService.shareNoteWith(shareWith,key,note);
     }
 }
 

@@ -9,7 +9,9 @@ const Image = require('../models/Images');
 exports.displayImage = function(req,res) {
     Image.find()
         .sort({ image: -1 })
-        .then(image => res.json(image));
+        .then(image => {
+            res.json(image)
+        });
     // res.sendFile('/uploads/'); 
 }
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
-// import Chip from '@material-ui/core/Chip';
+import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import more from '../../../assets/icons/more.svg';
 import axios from 'axios';
@@ -54,23 +54,27 @@ class TrashNotes extends Component {
                             <div className="display-notes-div">
                             <div id="div_element" className="displaynotes column ">
                                 <Card style={{ width: '100%', backgroundColor:note.background, borderRadius:0}}>
-                                    <div style={{ width: '90%', marginTop: 10, marginLeft: 10, fontWeight: 'bolder', position: 'relative' }}>
-                                        <div style={{width:'80%', paddingBottom: 20, paddingTop: 10 }}>
-                                            {note.notetitle}
+                                    <div style={{ width: '100%', fontWeight: 'bolder', position: 'relative' }}>
+                                        {note.image ?
+                                            <img src={note.image} alt="note" width='100%' style={{width: '100%'}}/>
+                                            :
+                                            null
+                                        }
+                                        <div style={{width:'90%', paddingBottom: 20, paddingTop: 10 }}>
+                                        <div style={{marginTop: 10, marginLeft: 10}}>{note.notetitle}</div>
                                         </div>
                                     </div>
 
                                     <div style={{ width: '100%', marginLeft: 10, marginBottom: 20,fontSize:20,opacity:0.7 }}>{note.notedata}</div>
 
-                                    {/* {data.label ?
+                                    {note.label ?
                                         <Chip
-                                            label={data.label}
-                                            onDelete={() => this.handleDeleteLabel(key, data)}
+                                            label={note.label}
                                             style={{ borderRadius: 1, height: 24, marginLeft: 10, fontSize: 11 }}
                                         />
                                         :
                                         null
-                                    } */}
+                                    }
 
                                     <div id="note-btns" style={{ width: 240, height: 40 }}>
                                         <IconButton name={note.key} color="primary" id="notebuttons"

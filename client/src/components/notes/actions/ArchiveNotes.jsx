@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';
 import IconButton from '@material-ui/core/IconButton';
-import { Input, Button } from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
+import PersonIcon from '@material-ui/icons/Person';
+import AddPerson from '@material-ui/icons/PersonAdd';
+import { Cancel, Check } from '@material-ui/icons';
+import { Input, Button, Divider } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -28,11 +32,13 @@ import redo from '../../../assets/icons/redo.svg';
 import axios from 'axios';
 import NoteController from '../../../controllers/NoteController.js';
 import LabelController from '../../../controllers/LabelController';
+import NoteServices from '../../../services/NoteServices';
 // import { createBrowserHistory } from 'history';
 
 // const history = createBrowserHistory();
 const noteCtrl = new NoteController();
 const labelCtrl = new LabelController();
+const noteService = new NoteServices();
 
 class ArchiveNotes extends Component {
     constructor() {
@@ -48,12 +54,23 @@ class ArchiveNotes extends Component {
             notedata: null,
             labels: [],
             color: true,
+            opencollaborator: false,
+            file: null,
+            imagePreviewUrl: null,
+            sharewith: null,
+            checksharewith: false,
+            userfullname: null,
+            useremail: null
         }
 
         this.handleClickLabel = this.handleClickLabel.bind(this);
         this.handleCloseLabel = this.handleCloseLabel.bind(this);
         this.handleClickColor = this.handleClickColor.bind(this);
         this.handleCloseColor = this.handleCloseColor.bind(this);
+        this.triggerInputFile = this.triggerInputFile.bind(this);
+        this.handleClickCheck = this.handleClickCheck.bind(this);
+        this.handleClickCollaboratorClose = this.handleClickCollaboratorClose.bind(this);
+        this.handleClickCollaboratorOpen = this.handleClickCollaboratorOpen.bind(this);
     }
 
     handleClickLabel(event) {
@@ -122,6 +139,67 @@ class ArchiveNotes extends Component {
         //   });
     }
 
+    handleClickCollaboratorOpen = () => {
+        var email = localStorage.getItem('username');
+        var fullname = localStorage.getItem('user');
+        this.setState({ 
+            opencollaborator: true,
+            userfullname: fullname,
+            useremail: email
+        });
+    }
+
+    handleClickCollaboratorClose = () => {
+        this.setState({ opencollaborator: false });
+    }
+
+    handleClickCheck() {
+        this.setState({ checksharewith: true });
+    }
+
+    triggerInputFile() {
+        this.fileInput.click();
+    }
+    
+    handleImageChange = (event,key,note) => {
+        this.uploadForm(event.target.files[0],key,note);
+    }
+
+    uploadForm(file,key,note){
+        let form = new FormData(this.refs.myForm);
+        form.append('newimage', file);
+
+        fetch('/api/images/uploadimage/'+key, {
+          method: 'POST',
+          body: form,
+        })
+        .then(res => {
+            axios.get('/api/images/uploadimage')
+            .then(res => {
+                this.setState({ images: res.data }); 
+                this.state.images.forEach(function(image) {
+                    if(key === image.noteId) {
+                        note.image = 'http://localhost:8080/uploads/'+image.image;
+                        noteService.onUpdateNote(key,note);
+                    }
+                })
+            })
+        });
+    }
+
+    firstLetter(sharenotewith,sharednoteby) {
+       if(sharenotewith) {
+        var res = sharenotewith.slice(0, 1);
+        var userfirstletter = res.toLowerCase();
+        return userfirstletter;
+       }
+       else if(sharednoteby) {
+        var res1 = sharednoteby.slice(0, 1);
+        var userfirstletter1 = res1.toLowerCase();
+        return userfirstletter1;
+       }
+    }
+
     render() {
         const userId = localStorage.getItem('userKey');
         const { anchorEl } = this.state;
@@ -136,13 +214,20 @@ class ArchiveNotes extends Component {
                             <div className="display-notes-div">
                             <div  className="displaynotes column">
                             <Card style={{width:'100%', backgroundColor:note.background, borderRadius:0 }}>
-                                <div style={{width: '90%', marginTop: 10, marginLeft: 10, fontWeight: 'bolder', position: 'relative' }}>
+                                <div style={{width: '100%', fontWeight: 'bolder', position: 'relative' }}>
+                                    {note.image ?
+                                            <img src={note.image} alt="note" width='100%' style={{width: '100%'}}/>
+                                            :
+                                            null
+                                    }
+
                                     <div style={{width:'80%', paddingBottom: 20, paddingTop: 10 }} onClick={this.handleClickOpen}>
-                                        {note.notetitle}
+                                        <div style={{marginTop: 10, marginLeft: 10}}>{note.notetitle}</div>                                    
                                     </div>
+
                                     <div id="note-btns" >
                                         <Tooltip title="Pin note">
-                                            <IconButton style={{ height: 30, width: 30, position: 'absolute', display: 'inline-flex', top: -5, right: '-7%'  }}
+                                            <IconButton style={{ height: 30, width: 30, position: 'absolute', display: 'inline-flex', top: 2, right: '1%'  }}
                                                 color="primary"
                                                 type="submit"
                                                 onClick={() => { noteCtrl.isPinNote(note._id, note); noteCtrl.isArchiveNote(note._id, note) }}
@@ -155,28 +240,38 @@ class ArchiveNotes extends Component {
 
                                 <div onClick={this.handleClickOpen} style={{ width: '100%', marginLeft: 10, marginBottom: 20,fontSize:20,opacity:0.7  }}>{note.notedata}</div>
 
-                                {note.reminder ?
-                                    <Chip
-                                        avatar={
-                                            <img src={pickdate} alt="pickdate" id="avtarremindermenuicons" />
-                                        }
-                                        label={note.reminder}
-                                        onDelete={() => noteCtrl.handleDeleteReminder(note._id, note)}
-                                        style={{ borderRadius: 1, height: 24, marginLeft: 10, fontSize: 11 }}
-                                    />
-                                    :
-                                    null
-                                }
+                                <div style={{display: 'flex',marginLeft: 5}}>
+                                    {note.reminder ?
+                                        <Chip
+                                            avatar={
+                                                <img src={pickdate} alt="pickdate" id="avtarremindermenuicons" />
+                                            }
+                                            label={note.reminder}
+                                            onDelete={() => noteCtrl.handleDeleteReminder(note._id, note)}
+                                            style={{ borderRadius: 1, height: 24, marginLeft: 10, fontSize: 11 }}
+                                        />
+                                        :
+                                        null
+                                    }
 
-                                {note.label ?
-                                    <Chip
-                                        label={note.label}
-                                        onDelete={() => labelCtrl.handleDeleteLabel(note._id, note)}
-                                        style={{ borderRadius: 1, height: 24, marginLeft: 10, fontSize: 11 }}
-                                    />
-                                    :
-                                    null
-                                }
+                                    {note.label ?
+                                        <Chip
+                                            label={note.label}
+                                            onDelete={() => labelCtrl.handleDeleteLabel(note._id, note)}
+                                            style={{ borderRadius: 1, height: 24, marginLeft: 10, fontSize: 11 }}
+                                        />
+                                        :
+                                        null
+                                    }
+
+                                    {note.sharenotewith || note.sharednoteby?
+                                        <Avatar style={{margin:'0px 5px 0px 5px',width:23, height: 23, border:'2px solid white',backgroundColor:'rgb(96, 125, 139)'}}>
+                                            <span style={{marginTop:-3, fontSize: 14,fontWeight: 100}}>{this.firstLetter(note.sharenotewith,note.sharednoteby)}</span>
+                                        </Avatar>
+                                        :
+                                        null
+                                    }
+                                </div>
 
                                 <div id="note-btns" style={{ width: 240, height: 40 }}>
                                     <Tooltip title="Reminde me">
@@ -208,6 +303,7 @@ class ArchiveNotes extends Component {
                                             Pick place
                                         </MenuItem>
                                     </Menu>
+
                                     <Tooltip title="Collaborator">
                                         <IconButton color="primary" id="notebuttons">
                                             <img src={collaborator} alt="collaborator" id="noteicons" />
@@ -225,78 +321,85 @@ class ArchiveNotes extends Component {
                                     </Tooltip>
 
                                     <Menu
-                                            id="color-menu"
-                                            position="right top"
-                                            anchorEl={anchorElColor}
-                                            open={Boolean(anchorElColor)}
-                                            onClose={this.handleCloseColor}
-                                        >
-                                            {/* <Tooltip title="White"> */}
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "white" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,1)}} />
-                                            {/* </Tooltip> */}
-                                            <Tooltip title="Red">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(255, 138, 128)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,2)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Orange">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(255, 209, 128)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,3)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Yellow">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(255, 255, 141)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,4)}} />
-                                            </Tooltip>
-                                            <br></br>
-                                            <Tooltip title="Green">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(204, 255, 144)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,5)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Teal">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(167, 255, 235)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,6)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Blue">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(128, 216, 255)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,7)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Dark blue">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(130, 177, 255)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,8)}} />
-                                            </Tooltip>
-                                            <br></br>
-                                            <Tooltip title="Purple">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(179, 136, 255)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,9)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Pink">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(248, 187, 208)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,10)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Brown">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(215, 204, 200)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,11)}} />
-                                            </Tooltip>
-                                            <Tooltip title="Gray">
-                                                <IconButton id="color-btn" 
-                                                    style={{ backgroundColor: "rgb(207, 216, 220)" }}
-                                                    onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,12)}} />
-                                            </Tooltip>
-                                        </Menu>
+                                        id="color-menu"
+                                        position="right top"
+                                        anchorEl={anchorElColor}
+                                        open={Boolean(anchorElColor)}
+                                        onClose={this.handleCloseColor}
+                                    >
+                                        {/* <Tooltip title="White"> */}
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "white" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,1)}} />
+                                        {/* </Tooltip> */}
+                                        <Tooltip title="Red">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(255, 138, 128)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,2)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Orange">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(255, 209, 128)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,3)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Yellow">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(255, 255, 141)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,4)}} />
+                                        </Tooltip>
+                                        <br></br>
+                                        <Tooltip title="Green">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(204, 255, 144)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,5)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Teal">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(167, 255, 235)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,6)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Blue">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(128, 216, 255)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,7)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Dark blue">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(130, 177, 255)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,8)}} />
+                                        </Tooltip>
+                                        <br></br>
+                                        <Tooltip title="Purple">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(179, 136, 255)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,9)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Pink">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(248, 187, 208)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,10)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Brown">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(215, 204, 200)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,11)}} />
+                                        </Tooltip>
+                                        <Tooltip title="Gray">
+                                            <IconButton id="color-btn" 
+                                                style={{ backgroundColor: "rgb(207, 216, 220)" }}
+                                                onClick={() => {this.handleCloseColor();noteCtrl.changeColor(note._id, note,12)}} />
+                                        </Tooltip>
+                                    </Menu>
 
+                                    <input style={{ display: 'none' }}
+                                        type="file"
+                                        ref={fileInput => this.fileInput = fileInput}
+                                        onChange={(e) => this.handleImageChange(e,note._id,note)} 
+                                        value={this.state.image}
+                                        >
+                                    </input>
                                     <Tooltip title="Add image">
-                                        <IconButton color="primary" id="notebuttons">
+                                        <IconButton color="primary" id="notebuttons" onClick={(e) => {this.triggerInputFile()}}>
                                             <img src={newnotewithimage} alt="newnotewithimage" id="noteicons" />
                                         </IconButton>
                                     </Tooltip>
@@ -460,6 +563,89 @@ class ArchiveNotes extends Component {
                                 })
                                 }
                             </Menu>
+
+                            {/* ----------------------- Collaborator -------------------- */}
+                            <div>
+                                <Dialog
+                                    open={this.state.opencollaborator}
+                                    onClose={this.handleClickCollaboratorClose}
+                                    aria-labelledby="alert-dialog-title"
+                                    aria-describedby="alert-dialog-description"
+                                >
+                                    <DialogTitle id="alert-dialog-title">
+                                        Collaborators
+                                    </DialogTitle>
+                                    <Divider id="collaborator-title-divider"></Divider>
+                                    <DialogContent>
+                                        <div>
+                                            <Avatar>
+                                                <PersonIcon />
+                                            </Avatar>
+                                            {note.sharednoteby ?
+                                                <div id="collaborator-data-div">
+                                                    <span style={{fontWeight: 700}}>{note.sharedperson}</span><span id="owner-span">(Owner)</span><br></br>
+                                                    <span style={{opacity: 0.7}}>{note.sharednoteby}</span>
+                                                </div>
+                                                :
+
+                                                <div id="collaborator-data-div">
+                                                    <span style={{fontWeight: 700}}>{this.state.userfullname}</span><span id="owner-span">(Owner)</span><br></br>
+                                                    <span style={{opacity: 0.7}}>{this.state.useremail}</span>
+                                                </div>
+
+                                            }
+                                        </div>
+
+                                        {note.sharenotewith ?
+                                            <div style={{marginTop:15,height:35}}>
+                                                <Avatar>
+                                                    <PersonIcon />
+                                                </Avatar>
+                                                <div id="collaborator-sharewith-div">
+                                                    <div >
+                                                        <span style={{fontWeight: 700}}>{note.sharenotewith}</span>
+                                                    </div>
+                                                    <IconButton id="sharewith-cancel-btn" type="submit">
+                                                        <Cancel style={{marginTop: -12}} onClick={() => {noteCtrl.onDeleteShareWith(note._id,note);this.handleClickCollaboratorClose()}}/>
+                                                    </IconButton>
+                                                </div>
+                                            </div>
+                                            :
+                                            null
+                                        }
+
+                                        <div style={{marginTop:15,height:35}}>
+                                            <Avatar>
+                                                <AddPerson />
+                                            </Avatar>
+                                            <div id="collaborator-sharewith-div">
+                                                <Input
+                                                    id="sharewith-input"
+                                                    disableUnderline={true}  
+                                                    type="text" 
+                                                    placeholder="Person or email to share with" 
+                                                    onInput={e => this.setState({ sharewith: e.target.value })}
+                                                    onChange={this.handleClickCheck}
+                                                />
+                                                {this.state.checksharewith ? 
+                                                    <IconButton id="sharewith-check-btn">
+                                                        <Check type="submit" style={{marginTop: -8,height:17,width:17}} 
+                                                            onClick={() => {noteCtrl.shareNoteWith(this.state.sharewith,note._id,note)}}
+                                                        />
+                                                    </IconButton>
+                                                    :
+                                                    null
+                                                }
+                                            </div>
+                                        </div>
+
+                                    </DialogContent>
+                                    <div id="collaborator-actions">
+                                        <Button id="collaborator-cancel-btn" onClick={() => {this.handleClickCollaboratorClose()}}>cancel</Button>
+                                        <Button id="collaborator-save-btn" onClick={() => {this.handleClickCollaboratorClose();noteCtrl.shareNoteWith(this.state.sharewith,note._id,note)}}>save</Button>
+                                    </div>
+                                </Dialog>
+                            </div>
                         </div> 
                         </form>
                     );

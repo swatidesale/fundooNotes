@@ -26,6 +26,35 @@ class NoteServices {
             // this.reload();
         });    
     }
+
+    shareNoteWith(shareWith,key,note) {
+        const username = localStorage.getItem('username');
+        const userfullname = localStorage.getItem('user');
+        const sharenotewith = shareWith;
+        var users = [];
+        axios.get('/api/users/register')
+          .then(res => {
+            users = res.data;
+            users.forEach(function(user) {
+                var userId = user._id;
+                var notetitle = note.notetitle;
+                var notedata = note.notedata;
+                var image = note.image;
+                console.log("image....",image);
+                var sharednoteby = username;
+                var sharedperson = userfullname;
+                if(user.username === sharenotewith) {
+                    axios.post('/api/notes/sharenote', { key,username,sharenotewith,userfullname })
+                    .then((result) => {
+                        axios.post('/api/notes/notes',{userId, image, notetitle, notedata, sharednoteby,sharedperson})
+                            .then((result) => {
+
+                            })
+                    })
+                }
+            });
+        });
+    }
 }
 
 export default NoteServices;

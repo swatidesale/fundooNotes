@@ -39,6 +39,12 @@ const NoteSchema = new Schema({
     },
     sharenotewith: {
         type: String
+    },
+    sharednoteby: {
+        type: String
+    },
+    sharedperson: {
+        type: String
     }
 });
 
@@ -66,7 +72,10 @@ noteOperations.prototype.createNote = function(noteData, callback) {
         'background': noteData.background,
         'reminder': noteData.reminder,
         'label': noteData.label,
-        'sharenotewith': noteData.sharenotewith
+        'image': noteData.image,
+        'sharenotewith': noteData.sharenotewith,
+        'sharednoteby': noteData.sharednoteby,
+        'sharedperson': noteData.sharedperson
     });
 
     newNote.save(function(err, note) {
