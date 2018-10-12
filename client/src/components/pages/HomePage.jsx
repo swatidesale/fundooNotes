@@ -7,6 +7,7 @@ import AppBar from '@material-ui/core/AppBar';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Drawer from 'material-ui/Drawer';
 import ToggleDisplay from 'react-toggle-display';
+import Avatar from '@material-ui/core/Avatar';
 // import Tooltip from '@material-ui/core/Tooltip';
 import SearchBar from 'material-ui-search-bar'
 import Card from '@material-ui/core/Card';
@@ -318,8 +319,14 @@ class HomePage extends Component {
                             <div className="profilediv">
                                 <table >
                                     <tr>
-                                        <th>
+                                        <th> 
                                             <div style={{ margin: 7, width: 100, height: 120 }}>
+                                            <IconButton style={{width: 96, height: 96, marginLeft: 10, marginTop: 5}}>
+                                                <Avatar style={{width: 96, height: 96, marginLeft: 0, marginTop: -11, backgroundColor: '#3e5560'}}>
+                                                    <span style={{fontSize: 70, fontWeight: 'lighter', marginTop: -15, marginLeft: 30}}>{this.state.firstletter}</span><br/>
+                                                    <span style={{fontSize: 10,marginTop: 76,height: 25, width: 95, marginLeft:-63, backgroundColor:'#202d33'}}>change</span>
+                                                </Avatar>
+                                            </IconButton>
                                             </div>
                                         </th>
                                         <th>

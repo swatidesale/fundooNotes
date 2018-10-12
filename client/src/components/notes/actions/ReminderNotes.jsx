@@ -294,7 +294,7 @@ class OtherNote extends Component {
                                     </Menu>
 
                                     <Tooltip title="Collaborator">
-                                    <IconButton color="primary" id="notebuttons">
+                                    <IconButton color="primary" id="notebuttons" onClick={this.handleClickCollaboratorOpen}>
                                         <img src={collaborator} alt="collaborator" id="noteicons" />
                                     </IconButton>
                                     </Tooltip>
