@@ -157,4 +157,22 @@ exports.displayAllUsers = function(callback) {
             callback(null,user);
         }
     });
+},
+
+/**
+ * Service to update a user
+ * 
+ * @param id
+ * @param userData
+ * @param callback
+*/
+exports.updateUser = function(id, userData, callback) {
+    userModel.updateUser(id, userData, function(err, user) {
+        if(err) {
+            callback(err,null);
+        }
+        else {
+            callback(null,user);
+        }
+    });
 }

@@ -29,6 +29,9 @@ const UserSchema = new Schema({
     confirmPassword: {
         type: String
     },
+    profileimage: {
+        type: String
+    },
     resetPasswordToken: {
         type: String
     },
@@ -210,6 +213,24 @@ registration.prototype.resetPassword = function(userData, token, callback) {
 */
 registration.prototype.displayAllUsers = function(callback) {
     User.find(function(err,user) {
+        if(err) {
+            callback(err,null);
+        }
+        else {
+            callback(null,user);
+        }
+    });
+},
+
+/**
+ * api to update a user
+ * 
+ * @param id
+ * @param userData
+ * @param callback
+*/
+registration.prototype.updateUser = function(id, userData, callback) {
+    User.findByIdAndUpdate(id, userData, function(err, user) {
         if(err) {
             callback(err,null);
         }

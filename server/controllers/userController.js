@@ -269,4 +269,21 @@ exports.getAllRegisteredUsers = function(req,res) {
             res.json(user);
         }
     });
+},
+
+/**
+ * Function to update a user
+ * 
+ * @param {Object} req
+ * @param {Object} res
+*/
+exports.updateUser = function(req, res) {
+    userServices.updateUser(req.params.id, req.body, function(err, user) {
+        if(err) {
+            res.json({err: err});
+        }
+        else {
+            res.json({data: user});
+        }
+    });
 }

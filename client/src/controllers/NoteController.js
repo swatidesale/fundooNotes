@@ -1,4 +1,5 @@
 import NoteServices from '../services/NoteServices';
+import axios from 'axios';
 // import $ from 'jquery';
 var dateFormat = require('dateformat');
 
@@ -150,7 +151,7 @@ class NoteController {
     onNoteEdit(title, notedata, key, data) {
         if(title !== null || notedata !== null) {
             data = {
-                title: title,
+                notetitle: title,
                 notedata: notedata
             }
             noteService.onUpdateNote(key, data);
@@ -162,8 +163,32 @@ class NoteController {
     }
 
     onDeleteShareWith(key,note) {
+        const sharenotewith = note.sharenotewith;
+        var users = [];
+        var notes = [];
         note.sharenotewith = null;
+        var title = note.notetitle;
         noteService.onUpdateNote(key,note);
+        axios.get('/api/users/register')
+        .then(res => {
+          users = res.data;
+          users.forEach(function(user) {
+              var userId = user._id;
+              if(user.username === sharenotewith) {
+                axios.get('/api/notes/notes')
+                .then(res => {
+                  notes = res.data;
+                    notes.forEach(function(note) {
+                        if(note.userId === userId && note.sharednoteby && title === note.notetitle){
+                            console.log("inside....",note._id);
+                            console.log(note);
+                            noteService.deleteForever(note._id,note);
+                        }
+                    });
+                });
+              }
+          });
+      });
     }
 
     shareNoteWith(shareWith,key,note) {

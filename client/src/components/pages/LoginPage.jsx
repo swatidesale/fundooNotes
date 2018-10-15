@@ -21,7 +21,6 @@ class LoginPage extends Component {
         status: false
       },
       submitted: false,
-      users: {}
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -48,7 +47,7 @@ class LoginPage extends Component {
           localStorage.setItem('username',result.data.data.username);
           var user = result.data.data.firstname+" "+result.data.data.lastname;
           localStorage.setItem('user',user);
-          localStorage.setItem('userKey',result.data.data._id);
+          localStorage.setItem('userKey',result.data.data._id);          
           this.setState({ message: '' });
           this.setState({status: false });
           window.location.href='/home/notes';
@@ -68,7 +67,7 @@ class LoginPage extends Component {
           else {
             this.setState({ message: result.data.msg });
             this.setState({status: true});
-            console.log("TOken....",result.data.token);
+            console.log("Token....",result.data.token);
             localStorage.setItem('resetToken',result.data.token);
             history.push("/login");
           }

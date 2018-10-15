@@ -59,10 +59,14 @@ class HomePage extends Component {
             newlabel: null,
             viewbtn: true,
             opensearch: false,
-            firstletter: null
+            firstletter: null,
+            profileimages: [],
+            setprofileimage: null,
+            userdetails: []
         };
 
         this.toggleDrawer = this.toggleDrawer.bind(this);
+        this.triggerInputFile = this.triggerInputFile.bind(this);
         this.toggleDrawerSearch = this.toggleDrawerSearch.bind(this);
         this.handleViewClick = this.handleViewClick.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -119,6 +123,21 @@ class HomePage extends Component {
         this.setState({
             firstletter: userfirstletter
         })
+
+        var self = this;
+        var userId = localStorage.getItem('userKey');
+        axios.get('/api/users/register')
+            .then(result => {
+                var users = result.data;
+                users.forEach(function(user) {
+                    // var userId = user._id;
+                    if(user._id === userId) {
+                        self.setState({
+                            userdetails: user
+                        });
+                    }
+                });
+            });
     }
 
     handleViewClick() {
@@ -188,7 +207,53 @@ class HomePage extends Component {
         window.location.href='/home/search';
     }
 
+    triggerInputFile() {
+        this.fileInput.click();
+    }
+    
+    handleProfileImageChange = (event,key,userDetails) => {
+        this.uploadForm(event.target.files[0],key,userDetails);
+    }
+
+    uploadForm(file,key,userDetails){
+        // var self = this;
+        let form = new FormData(this.refs.myForm);
+        form.append('profileimage', file);
+
+        fetch('/api/images/uploadprofileimage/'+key, {
+          method: 'POST',
+          body: form,
+        })
+        .then(res => {
+            axios.get('/api/images/uploadprofileimage')
+            .then(res => {
+                this.setState({ profileimages: res.data }); 
+                this.state.profileimages.forEach(function(image) {
+                    if(key === image.userId) {
+                        userDetails.profileimage = 'http://localhost:8080/uploads/'+image.profileimage;
+                        var profileimage = userDetails.profileimage;
+                        axios.put('/api/users/updateuser/'+key, { profileimage })
+                        .then((result) => {
+                            // history.push('/home/notes');
+                            // this.reload();
+                            // console.log("Inside result....",result.data.data.profileimage);
+                            // self.setState({setprofileimage: result.data.data.profileimage});
+                        });  
+                    }
+                });
+            });
+        });
+    }
+
     render() {
+        var userId = localStorage.getItem('userKey');
+        var userDetails = this.state.userdetails;
+        console.log("User...",userDetails);
+        console.log("User id...",userId);
+        console.log("User image...",userDetails.username);
+        // this.state.userdetails.map((user) => {
+            console.log("User.....",userDetails._id);
+        // });
         return (
             <div className="rootdiv">
                 <MuiThemeProvider>
@@ -247,8 +312,8 @@ class HomePage extends Component {
                             
                             <ToggleDisplay show={!this.state.viewbtn}>
                                 <IconButton style={{ marginLeft: 3 }} color="inherit" aria-label="Menu"
-                                 onClick={() => {this.handleViewClick();noteCtrl.notesInGridView()}}>
-                                    <img src={gridview} alt="gridview" id="topicons"  style={{height:24,width:24}} />
+                                    onClick={() => {this.handleViewClick();noteCtrl.notesInGridView()}}>
+                                        <img src={gridview} alt="gridview" id="topicons"  style={{height:24,width:24}} />
                                 </IconButton>
                             </ToggleDisplay>
                             
@@ -321,11 +386,27 @@ class HomePage extends Component {
                                     <tr>
                                         <th> 
                                             <div style={{ margin: 7, width: 100, height: 120 }}>
-                                            <IconButton style={{width: 96, height: 96, marginLeft: 10, marginTop: 5}}>
-                                                <Avatar style={{width: 96, height: 96, marginLeft: 0, marginTop: -11, backgroundColor: '#3e5560'}}>
-                                                    <span style={{fontSize: 70, fontWeight: 'lighter', marginTop: -15, marginLeft: 30}}>{this.state.firstletter}</span><br/>
-                                                    <span style={{fontSize: 10,marginTop: 76,height: 25, width: 95, marginLeft:-63, backgroundColor:'#202d33'}}>change</span>
-                                                </Avatar>
+
+                                            <input style={{ display: 'none' }}
+                                                type="file"
+                                                ref={fileInput => this.fileInput = fileInput}
+                                                onChange={(e) => this.handleProfileImageChange(e,userId,userDetails)} 
+                                                value={this.state.profileimage}
+                                            >
+                                            </input>
+                                            
+                                            <IconButton style={{width: 96, height: 96, marginLeft: 10, marginTop: 5}} onClick={(e) => {this.triggerInputFile()}}>
+                                                
+                                                { 
+                                                    // this.state.setprofileimage ?
+                                                    userDetails.profileimage ? 
+                                                    <img src={userDetails.profileimage} alt="profileimage" style={{width: 96, height: 96, borderRadius: 48, marginTop: -11}} />
+                                                    :
+                                                    <Avatar style={{width: 96, height: 96, marginLeft: 0, marginTop: -11, backgroundColor: '#3e5560'}}>
+                                                        <span style={{fontSize: 70, fontWeight: 'lighter', marginTop: -15, marginLeft: 30}}>{this.state.firstletter}</span><br/>
+                                                        <span style={{fontSize: 10,marginTop: 76,height: 25, width: 95, marginLeft:-63, backgroundColor:'#202d33'}}>change</span>
+                                                    </Avatar>
+                                                }
                                             </IconButton>
                                             </div>
                                         </th>

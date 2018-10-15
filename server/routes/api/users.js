@@ -12,6 +12,7 @@ router.post('/login',userController.signIn);
 router.post('/forgot',userController.forgotPassword);
 router.post('/reset/:token',userController.resetPassword);
 router.get('/register',userController.getAllRegisteredUsers);
+router.put('/updateuser/:id',userController.updateUser);
 
 module.exports = router;
 

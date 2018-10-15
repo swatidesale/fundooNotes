@@ -48,7 +48,8 @@ class NoteServices {
                     .then((result) => {
                         axios.post('/api/notes/notes',{userId, image, notetitle, notedata, sharednoteby,sharedperson})
                             .then((result) => {
-
+                                    console.log("Result...",result);
+                                    
                             })
                     })
                 }
