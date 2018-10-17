@@ -7,8 +7,8 @@ const noteModel = require('../models/Notes');
  * @param noteData
  * @param callback
 */
-exports.createNewNote = function(noteData, callback) {
-    noteModel.createNote(noteData, function(err,note) {
+exports.createNewNote = function(redis, noteData, callback) {
+    noteModel.createNote(redis, noteData, function(err,note) {
         if(err) {
             callback(err,null);
         }
@@ -41,8 +41,8 @@ exports.displayNotes = function(callback) {
  * @param noteData
  * @param callback
 */
-exports.updateNote = function(id, noteData, callback) {
-    noteModel.updateNote(id, noteData, function(err, note) {
+exports.updateNote = function(redis, id, noteData, callback) {
+    noteModel.updateNote(redis, id, noteData, function(err, note) {
         if(err) {
             callback(err,null);
         }
@@ -59,8 +59,8 @@ exports.updateNote = function(id, noteData, callback) {
  * @param noteData
  * @param callback
 */
-exports.deleteNote = function(id, noteData, callback) {
-    noteModel.deleteNote(id, noteData, function(err, note) {
+exports.deleteNote = function(redis, id, noteData, callback) {
+    noteModel.deleteNote(redis, id, noteData, function(err, note) {
         if(err) {
             callback(err,null);
         }

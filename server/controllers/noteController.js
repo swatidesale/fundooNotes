@@ -1,4 +1,6 @@
 const noteServices = require('../services/noteServices');
+const redisClient = require('redis');
+var redis  = redisClient.createClient(6379,'localhost');
 
 /**
  * Function to create a new note
@@ -8,7 +10,7 @@ const noteServices = require('../services/noteServices');
 */
 exports.createNewNote = function(req,res) {
     var noteData = req.body;
-    noteServices.createNewNote(noteData, function(err, note) {
+    noteServices.createNewNote(redis, noteData, function(err, note) {
         if(err) {
             res.json({err: err});
         }
@@ -42,7 +44,7 @@ exports.displayNotes = function(req,res) {
  * @param {Object} res
 */
 exports.updateNote = function(req, res) {
-    noteServices.updateNote(req.params.id, req.body, function(err, note) {
+    noteServices.updateNote(redis, req.params.id, req.body, function(err, note) {
         if(err) {
             res.json({err: err});
         }
@@ -59,7 +61,7 @@ exports.updateNote = function(req, res) {
  * @param {Object} res
 */
 exports.deleteNote = function(req,res) {
-    noteServices.deleteNote(req.params.id, req.body, function(err, note) {
+    noteServices.deleteNote(redis, req.params.id, req.body, function(err, note) {
         if(err) {
             res.json({err: err});
         }

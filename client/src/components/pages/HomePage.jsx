@@ -234,10 +234,7 @@ class HomePage extends Component {
                         var profileimage = userDetails.profileimage;
                         axios.put('/api/users/updateuser/'+key, { profileimage })
                         .then((result) => {
-                            // history.push('/home/notes');
-                            // this.reload();
-                            // console.log("Inside result....",result.data.data.profileimage);
-                            // self.setState({setprofileimage: result.data.data.profileimage});
+                            
                         });  
                     }
                 });
@@ -248,12 +245,6 @@ class HomePage extends Component {
     render() {
         var userId = localStorage.getItem('userKey');
         var userDetails = this.state.userdetails;
-        console.log("User...",userDetails);
-        console.log("User id...",userId);
-        console.log("User image...",userDetails.username);
-        // this.state.userdetails.map((user) => {
-            console.log("User.....",userDetails._id);
-        // });
         return (
             <div className="rootdiv">
                 <MuiThemeProvider>

@@ -61,7 +61,7 @@ function noteOperations() {
  * @param noteData
  * @param callback
 */
-noteOperations.prototype.createNote = function(noteData, callback) {
+noteOperations.prototype.createNote = function(redis, noteData, callback) {
     var newNote = new Note({
         'notetitle': noteData.notetitle,
         'notedata': noteData.notedata,
@@ -83,7 +83,15 @@ noteOperations.prototype.createNote = function(noteData, callback) {
             callback(err, null);
         }
         else {
-            callback(null,note);
+             //Save new note to cache
+             redis.set(note._id, JSON.stringify(note), function (err) {
+                if (err) {
+                    callback(err,null);
+                } 
+                else {
+                    callback(null,note);
+                }
+            });
         }
     });
 },
@@ -111,13 +119,24 @@ noteOperations.prototype.displayAllNotes = function(callback) {
  * @param noteData
  * @param callback
 */
-noteOperations.prototype.updateNote = function(id, noteData, callback) {
-    Note.findByIdAndUpdate(id, noteData, function(err, note) {
+noteOperations.prototype.updateNote = function(redis, id, noteData, callback) {
+    Note.findByIdAndUpdate(id, noteData, { new : true },function(err, note) {
         if(err) {
             callback(err,null);
         }
+        else if (!note) {
+            callback('Missing book',null);
+        }
         else {
-            callback(null,note);
+            //Save updated note to cache
+            redis.set(id, JSON.stringify(note), function (err) {
+                if (err) {
+                    callback(err,null);
+                }
+                else {
+                    callback(null,note);
+                }
+            });
         }
     });
 },
@@ -129,12 +148,14 @@ noteOperations.prototype.updateNote = function(id, noteData, callback) {
  * @param noteData
  * @param callback
 */
-noteOperations.prototype.deleteNote = function(id, noteData, callback) {
+noteOperations.prototype.deleteNote = function(redis, id, noteData, callback) {
     Note.findByIdAndRemove(id, noteData, function(err, note) {
         if(err) {
             callback(err,null);
         }
         else {
+            //Delete note from redis cache
+            redis.del(id);
             callback(null,note);
         }
     });
