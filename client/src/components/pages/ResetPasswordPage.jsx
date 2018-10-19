@@ -32,6 +32,10 @@ class ResetPasswordPage extends Component {
         });
     } 
 
+    /**
+     * function to reset a new password
+     * 
+    */
     handleSubmit(event) {
         event.preventDefault();
         var token = localStorage.getItem('resetToken');

@@ -14,6 +14,7 @@ import './App.css';
 
 const history = createBrowserHistory();
 
+//Class to create routes for JSX pages
 class App extends Component {
   render() {
     return(

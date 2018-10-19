@@ -34,6 +34,10 @@ class LoginPage extends Component {
     });
   }
 
+  /**
+   * function to login a user on click login button
+   * 
+  */
   handleSubmit() {
     const { username, password } = this.state;
     axios.post('/api/users/login', { username, password })
@@ -55,6 +59,10 @@ class LoginPage extends Component {
       });
   }
 
+  /**
+   * function to forgot password implementation
+   * 
+  */
   forgotPassword() {
     const { username } = this.state;
     axios.post('/api/users/forgot',{username})

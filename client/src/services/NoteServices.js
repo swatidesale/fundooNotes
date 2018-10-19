@@ -1,6 +1,13 @@
 import axios from 'axios';
 
+//Class for Note services
 class NoteServices {
+    /**
+     * function to update note data
+     * 
+     * @param key
+     * @param note
+    */
     onUpdateNote(key,note) {
         const ispin  = note.ispin;
         const isarchive = note.isarchive;
@@ -19,6 +26,12 @@ class NoteServices {
         });        
     }
 
+    /**
+     * function to delete note from database
+     * 
+     * @param key
+     * @param data
+    */
     deleteForever(key, data) {
         axios.delete('/api/notes/notes/'+key, { })
         .then((result) => {
@@ -27,6 +40,13 @@ class NoteServices {
         });    
     }
 
+    /**
+     * function to share a note with other user
+     * 
+     * @param shareWith
+     * @param key
+     * @param note
+    */
     shareNoteWith(shareWith,key,note) {
         const username = localStorage.getItem('username');
         const userfullname = localStorage.getItem('user');

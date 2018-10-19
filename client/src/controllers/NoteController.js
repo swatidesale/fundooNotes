@@ -10,6 +10,7 @@ var elements = document.getElementsByClassName("column");
 var i;
 const noteService = new NoteServices();
 
+//Class for note controller operations 
 class NoteController {
     // reload() {
     //     $(document).ready(($) => {
@@ -31,18 +32,32 @@ class NoteController {
     //     });
     // }
 
+    /**
+     * Display notes in grid view
+     * 
+    */
     notesInGridView() {
         for (i = 0; i < elements.length; i++) {
             elements[i].style.width = "27%";
         }
     }
 
+    /**
+     * Dsipaly notes in list view
+     * 
+    */
     notesInListView() {
         for (i = 0; i < elements.length; i++) {
             elements[i].style.width = "70%";
         }
     }
 
+    /**
+     * function to get today's date for reminder
+     * 
+     * @param key
+     * @param note
+    */
     getToday(key, note) {
         var day = new Date();   
         var today = dateFormat(day,"mmm d, h:MM TT"); 
@@ -51,6 +66,12 @@ class NoteController {
         noteService.onUpdateNote(key,note);
     }
 
+    /**
+     * function to get tomorrows date for reminder
+     * 
+     * @param key
+     * @param note
+    */
     getTomorrow(key,note) {
         var day = new Date();   
         day.setDate(day.getDate()+1);
@@ -60,6 +81,12 @@ class NoteController {
         noteService.onUpdateNote(key,note);
     }
 
+    /**
+     * function to get next week's monday's date for reminder
+     * 
+     * @param key
+     * @param note
+    */
     getNextWeek(key,note) { 
         var day = new Date();
         day.setDate(day.getDate() + (1 + 7 - day.getDay()) % 7);
@@ -69,11 +96,23 @@ class NoteController {
         noteService.onUpdateNote(key,note);
     }
 
+    /**
+     * function to delete reminder 
+     * 
+     * @param key
+     * @param data
+    */
     handleDeleteReminder(key, data) {
         data.reminder = null;
         noteService.onUpdateNote(key,data);
     }
 
+    /**
+     * function to check pin or unpin note
+     * 
+     * @param key
+     * @param data
+    */
     isPinNote(key, data) {
         if( data.ispin === true) {
             data.ispin = false;
@@ -84,6 +123,12 @@ class NoteController {
         noteService.onUpdateNote(key,data);
     }
 
+    /**
+     * function to check archive or unarchive note
+     * 
+     * @param key
+     * @param data
+    */
     isArchiveNote(key, data) {
         if( data.isarchive === true) {
             data.isarchive = false;
@@ -94,6 +139,12 @@ class NoteController {
         noteService.onUpdateNote(key,data);
     }
 
+    /**
+     * function to check trash note
+     * 
+     * @param key
+     * @param data
+    */
     isTrashNote(key, data) {
         if( data.istrash === true) {
             data.istrash = false;
@@ -104,6 +155,12 @@ class NoteController {
         noteService.onUpdateNote(key,data);
     }
 
+    /**
+     * function to change color of note
+     * 
+     * @param key
+     * @param data
+    */
     changeColor(key,note,btn) {
         if(btn === 1) {
             note.background = 'white';
@@ -148,6 +205,14 @@ class NoteController {
         noteService.onUpdateNote(key,note);
     }
 
+    /**
+     * function to edit note title and note data
+     * 
+     * @param title
+     * @param notedata
+     * @param key
+     * @param data
+    */
     onNoteEdit(title, notedata, key, data) {
         if(title !== null || notedata !== null) {
             data = {
@@ -158,10 +223,22 @@ class NoteController {
         }
     }
 
+    /**
+     * function to delete note from database
+     * 
+     * @param key
+     * @param data
+    */
     deleteForever(key, data) { 
         noteService.deleteForever(key,data);
     }
 
+    /**
+     * function to delete shared person from note
+     * 
+     * @param key
+     * @param note
+    */
     onDeleteShareWith(key,note) {
         const sharenotewith = note.sharenotewith;
         var users = [];
@@ -191,6 +268,13 @@ class NoteController {
       });
     }
 
+    /**
+     * function to share a note with other user
+     * 
+     * @param shareWith
+     * @param key
+     * @param note
+    */
     shareNoteWith(shareWith,key,note) {
         noteService.shareNoteWith(shareWith,key,note);
     }

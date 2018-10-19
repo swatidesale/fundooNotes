@@ -117,6 +117,7 @@ class HomePage extends Component {
             });
         }
         
+        //Display first letter from username on signout button
         var userdata = localStorage.getItem('user');
         var res = userdata.slice(0, 1);
         var userfirstletter = res.toLowerCase();
@@ -183,6 +184,10 @@ class HomePage extends Component {
         this.setState({ labelopen: false });
     };
 
+    /**
+     * function to create a new label and add into database
+     * 
+    */
     createLabel() {
         const { newlabel } = this.state;
         const userId = localStorage.getItem('userKey');
@@ -207,6 +212,10 @@ class HomePage extends Component {
         window.location.href='/home/search';
     }
 
+    /**
+     * function to trigger file input 
+     * 
+    */
     triggerInputFile() {
         this.fileInput.click();
     }
@@ -215,6 +224,13 @@ class HomePage extends Component {
         this.uploadForm(event.target.files[0],key,userDetails);
     }
 
+    /**
+     * function to upload profile image
+     * 
+     * @param file
+     * @param key
+     * @param userDetails
+    */
     uploadForm(file,key,userDetails){
         // var self = this;
         let form = new FormData(this.refs.myForm);
@@ -424,7 +440,6 @@ class HomePage extends Component {
                 </div>
 
                 {/* -----------------Create Label Card ----------------- */}
-
                 <div>
                     <Dialog PaperProps={
                         {

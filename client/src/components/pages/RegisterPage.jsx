@@ -36,6 +36,10 @@ class RegisterPage extends Component {
         });
     }
 
+    /**
+     * function to register a new user
+     * 
+    */
     handleSubmit(e) {
         e.preventDefault();
         const { firstname, lastname,username, password, confirmPassword } = this.state;
