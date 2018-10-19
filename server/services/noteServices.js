@@ -4,6 +4,7 @@ const noteModel = require('../models/Notes');
 /**
  * Service to create a new note
  * 
+ * @param redis
  * @param noteData
  * @param callback
 */
@@ -37,6 +38,7 @@ exports.displayNotes = function(callback) {
 /**
  * Service to update a note
  * 
+ * @param redis
  * @param id
  * @param noteData
  * @param callback
@@ -55,6 +57,7 @@ exports.updateNote = function(redis, id, noteData, callback) {
 /**
  * Service to delete a note
  * 
+ * @param redis
  * @param id
  * @param noteData
  * @param callback

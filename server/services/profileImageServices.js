@@ -3,9 +3,12 @@ const path = require('path');
 
 const ProfileImage = require('../models/ProfileImage');
 
-// @route GET api/images
-// @desc GET all images
-// @access Public
+/**
+ * api to get all images
+ * 
+ * @param req
+ * @param res
+*/
 exports.displayImage = function(req,res) {
     ProfileImage.find()
         .sort({ image: -1 })
@@ -30,6 +33,12 @@ const upload = multer({
     }
 }).single('profileimage');
 
+/**
+ * function to check type of image uploaded
+ * 
+ * @param file
+ * @param cb
+*/
 function checkFileType(file, cb) {
     const filetypes = /jpeg|jpg|png|gif/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
@@ -42,6 +51,12 @@ function checkFileType(file, cb) {
     }
 }
 
+/**
+ * api to add a image
+ * 
+ * @param req
+ * @param res
+*/
 exports.addProfileImage = function(req,res) {
     console.log("Inside upload....");
     upload(req, res, (err) => {

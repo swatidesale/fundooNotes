@@ -58,6 +58,7 @@ function noteOperations() {
 /**
  * api to create a new note
  * 
+ * @param redis
  * @param noteData
  * @param callback
 */
@@ -78,12 +79,13 @@ noteOperations.prototype.createNote = function(redis, noteData, callback) {
         'sharedperson': noteData.sharedperson
     });
 
+    //Save note to mongoDB
     newNote.save(function(err, note) {
         if(err) {
             callback(err, null);
         }
         else {
-             //Save new note to cache
+             //Save new note to redis cache
              redis.set(note._id, JSON.stringify(note), function (err) {
                 if (err) {
                     callback(err,null);
@@ -115,11 +117,13 @@ noteOperations.prototype.displayAllNotes = function(callback) {
 /**
  * api to update a note
  * 
+ * @param redis
  * @param id
  * @param noteData
  * @param callback
 */
 noteOperations.prototype.updateNote = function(redis, id, noteData, callback) {
+    //Save updated note to mongoDB
     Note.findByIdAndUpdate(id, noteData, { new : true },function(err, note) {
         if(err) {
             callback(err,null);
@@ -144,11 +148,13 @@ noteOperations.prototype.updateNote = function(redis, id, noteData, callback) {
 /**
  * api to delete a note
  * 
+ * @param redis
  * @param id
  * @param noteData
  * @param callback
 */
 noteOperations.prototype.deleteNote = function(redis, id, noteData, callback) {
+    //Delete note from mongoDB
     Note.findByIdAndRemove(id, noteData, function(err, note) {
         if(err) {
             callback(err,null);
