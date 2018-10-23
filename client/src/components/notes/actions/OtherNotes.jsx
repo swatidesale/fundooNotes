@@ -236,7 +236,7 @@ class OtherNote extends Component {
                                                 </Tooltip>
                                             </div>
                                         </div>
-
+                                        
                                         <div onClick={this.handleClickOpen} style={{ width: '100%', marginLeft: 10, marginBottom: 20,fontSize:20,opacity:0.7 }}>{note.notedata}</div>
 
                                         <div style={{display: 'flex'}}>

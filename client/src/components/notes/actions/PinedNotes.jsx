@@ -211,7 +211,6 @@ class PinNote extends Component {
                     return (
                         <form>
                              <div className="display-notes-div">
-                            {/* <div> */}
                             <div id="div_element" className="displaynotes column ">
                                 <Card style={{ width: '100%', backgroundColor:note.background, borderRadius:0 }}>
                                     <div style={{width: '100%', fontWeight: 'bolder', position: 'relative' }}>
