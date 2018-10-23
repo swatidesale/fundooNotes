@@ -26,7 +26,6 @@ This is a fundooNotes using React.js and Node.js
 
 ```
 cd fundooNotes
-
 ```
 3. Run ```npm install``` to install node dependencies.
 4. Run ```npm run server``` to start the node server.
